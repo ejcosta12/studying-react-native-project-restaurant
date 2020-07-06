@@ -60,21 +60,13 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function loadFoods(): Promise<void> {
-      let registeredFoods = [] as Food[];
-      if (searchValue) {
-        const response = await api.get('/foods', {
-          params: { name_like: searchValue },
-        });
-        registeredFoods = response.data;
-      } else if (selectedCategory) {
-        const response = await api.get('/foods', {
-          params: { category_like: selectedCategory },
-        });
-        registeredFoods = response.data;
-      } else {
-        const response = await api.get('/foods');
-        registeredFoods = response.data;
-      }
+      const response = await api.get('/foods', {
+        params: {
+          name_like: searchValue,
+          category_like: selectedCategory,
+        },
+      });
+      const registeredFoods = response.data as Food[];
       setFoods(
         registeredFoods.map(food => ({
           ...food,
@@ -144,28 +136,30 @@ const Dashboard: React.FC = () => {
         </CategoryContainer>
         <FoodsContainer>
           <Title>Pratos</Title>
-          <FoodList>
-            {foods.map(food => (
+          <FoodList
+            data={foods}
+            keyExtractor={food => String(food.id)}
+            renderItem={({ item }) => (
               <Food
-                key={food.id}
-                onPress={() => handleNavigate(food.id)}
+                key={item.id}
+                onPress={() => handleNavigate(item.id)}
                 activeOpacity={0.6}
-                testID={`food-${food.id}`}
+                testID={`food-${item.id}`}
               >
                 <FoodImageContainer>
                   <Image
                     style={{ width: 88, height: 88 }}
-                    source={{ uri: food.thumbnail_url }}
+                    source={{ uri: item.thumbnail_url }}
                   />
                 </FoodImageContainer>
                 <FoodContent>
-                  <FoodTitle>{food.name}</FoodTitle>
-                  <FoodDescription>{food.description}</FoodDescription>
-                  <FoodPricing>{food.formattedPrice}</FoodPricing>
+                  <FoodTitle>{item.name}</FoodTitle>
+                  <FoodDescription>{item.description}</FoodDescription>
+                  <FoodPricing>{item.formattedPrice}</FoodPricing>
                 </FoodContent>
               </Food>
-            ))}
-          </FoodList>
+            )}
+          />
         </FoodsContainer>
       </ScrollView>
     </Container>
