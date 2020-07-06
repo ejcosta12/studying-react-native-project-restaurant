@@ -55,23 +55,33 @@ const Dashboard: React.FC = () => {
   const navigation = useNavigation();
 
   async function handleNavigate(id: number): Promise<void> {
-    // Navigate do ProductDetails page
+    navigation.navigate(`FoodDetails`, { id });
   }
 
   useEffect(() => {
     async function loadFoods(): Promise<void> {
-      const response = await api.get('/foods');
-      const registeredFoods = response.data as Food[];
-      if (!selectedCategory) {
-        setFoods(registeredFoods);
+      let registeredFoods = [] as Food[];
+      if (searchValue) {
+        const response = await api.get('/foods', {
+          params: { name_like: searchValue },
+        });
+        registeredFoods = response.data;
+      } else if (selectedCategory) {
+        const response = await api.get('/foods', {
+          params: { category_like: selectedCategory },
+        });
+        registeredFoods = response.data;
       } else {
-        const foodsCategory = registeredFoods.filter(
-          ({ category }) => category === selectedCategory,
-        );
-        setFoods(foodsCategory);
+        const response = await api.get('/foods');
+        registeredFoods = response.data;
       }
+      setFoods(
+        registeredFoods.map(food => ({
+          ...food,
+          formattedPrice: formatValue(food.price),
+        })),
+      );
     }
-
     loadFoods();
   }, [selectedCategory, searchValue]);
 
@@ -80,12 +90,11 @@ const Dashboard: React.FC = () => {
       const response = await api.get('categories');
       setCategories(response.data);
     }
-
     loadCategories();
   }, []);
 
   function handleSelectCategory(id: number): void {
-    setSelectedCategory(id);
+    setSelectedCategory(value => (value === id ? undefined : id));
   }
 
   return (
@@ -102,7 +111,7 @@ const Dashboard: React.FC = () => {
       <FilterContainer>
         <SearchInput
           value={searchValue}
-          onChangeText={setSearchValue}
+          onChangeText={e => setSearchValue(e)}
           placeholder="Qual comida você procura?"
         />
       </FilterContainer>

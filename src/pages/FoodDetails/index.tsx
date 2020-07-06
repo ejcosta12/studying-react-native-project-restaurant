@@ -73,34 +73,66 @@ const FoodDetails: React.FC = () => {
 
   useEffect(() => {
     async function loadFood(): Promise<void> {
-      // Load a specific food with extras based on routeParams id
+      const { id } = routeParams;
+      const response = await api.get(`foods/${id}`);
+      const detailsFood = response.data as Food;
+      setFood(detailsFood);
+      setExtras(detailsFood.extras.map(extra => ({ ...extra, quantity: 0 })));
     }
 
     loadFood();
   }, [routeParams]);
 
   function handleIncrementExtra(id: number): void {
-    // Increment extra quantity
+    setExtras(value =>
+      value.map(extra => {
+        if (extra.id === id) {
+          const quantity = extra.quantity + 1;
+          return {
+            ...extra,
+            quantity,
+          };
+        }
+        return extra;
+      }),
+    );
   }
 
   function handleDecrementExtra(id: number): void {
-    // Decrement extra quantity
+    setExtras(value =>
+      value.map(extra => {
+        if (extra.id === id && extra.quantity > 0) {
+          const quantity = extra.quantity - 1;
+          return {
+            ...extra,
+            quantity,
+          };
+        }
+        return extra;
+      }),
+    );
   }
 
   function handleIncrementFood(): void {
-    // Increment food quantity
+    setFoodQuantity(value => value + 1);
   }
 
   function handleDecrementFood(): void {
-    // Decrement food quantity
+    if (foodQuantity > 1) {
+      setFoodQuantity(value => value - 1);
+    }
   }
 
   const toggleFavorite = useCallback(() => {
-    // Toggle if food is favorite or not
+    isFavorite ? setIsFavorite(false) : setIsFavorite(true);
   }, [isFavorite, food]);
 
   const cartTotal = useMemo(() => {
-    // Calculate cartTotal
+    const totalExtras = extras.reduce((acc, extra) => {
+      return acc + extra.value * extra.quantity;
+    }, 0);
+    const totalFood = food.price * foodQuantity;
+    return formatValue(totalExtras + totalFood);
   }, [extras, food, foodQuantity]);
 
   async function handleFinishOrder(): Promise<void> {
