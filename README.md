@@ -13,6 +13,10 @@ Versão mobile de aplicação para criação de pedidos em restaurante, ao acess
 de um campo para pesquisa pelo nome do prato. Criada página para listagem de pedidos e outra para listagem de favoritos. Ao tocar em algum prato será direcionado para a criação
 do pedido, podendo alterar a quantidade e adicionar ingredientes extras, exbindo o total a ser pago.
 
+<p align="center" >
+<img alt="Home" src="https://res.cloudinary.com/dggw1b0tr/image/upload/c_scale,w_236/v1594124067/studying-react-native-project-restaurant/Home_teypzl.png">
+</p>
+
 ### Tecnologias
 
 - React Native
